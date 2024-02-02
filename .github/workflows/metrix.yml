@@ -1,0 +1,24 @@
+name: Build_Metrics
+
+on:
+  push:
+
+jobs:
+  metics:
+    runs-on: ubuntu-latest
+    outputs:
+      output1: ${{ steps.step1.outputs.url }}
+    steps:
+      - id: step1
+        run: echo "url=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> "$GITHUB_OUTPUT"
+      - id: step2
+        uses: jroehl/gsheet.action@v2.0.0
+        with:
+          spreadsheetId: ${{ secrets.BUILD_METRIX_SHEET_ID }}
+          commands: |
+            [
+              { "command": "updateData", "args": { "data": [["${{ steps.step1.outputs.url }}", "A2", "A3"]] }},
+            ]
+        env:
+          GSHEET_CLIENT_EMAIL: ${{ secrets.GSHEET_CLIENT_EMAIL }}
+          GSHEET_PRIVATE_KEY: ${{ secrets.GSHEET_PRIVATE_KEY }}
